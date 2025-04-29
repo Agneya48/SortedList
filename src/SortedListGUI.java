@@ -75,7 +75,7 @@ public class SortedListGUI extends JFrame {
         });
         randomWordComboBox.setSelectedItem(new WordOption(20));
         randomWordComboBox.setPreferredSize(fieldSize);
-        JButton addRandomButton = new JButton("Add Random");
+        JButton addRandomButton = new JButton("Add");
         Dimension buttonSize = addManualButton.getPreferredSize();
         addRandomButton.setPreferredSize(buttonSize);
 
