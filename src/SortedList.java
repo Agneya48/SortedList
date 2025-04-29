@@ -29,7 +29,7 @@ public class SortedList {
      * @param word String to be inserted and sorted
      * @return int index position where word will be sorted
      */
-    private int findInsertPosition(String word) {
+    public int findInsertPosition(String word) {
         int low = 0, high = list.size();
 
         while (low < high) {
@@ -174,6 +174,10 @@ public class SortedList {
 
     public void clear() {
         list.clear();
+    }
+
+    public Collator getCollator() {
+        return this.collator;
     }
 
     @Override

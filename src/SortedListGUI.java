@@ -62,7 +62,7 @@ public class SortedListGUI extends JFrame {
         JButton addManualButton = new JButton("Add");
         addManualButton.setPreferredSize(addButtonSize);
 
-        JLabel randomLabel = new JLabel("Add:");
+        JLabel randomLabel = new JLabel("Add Random:");
         randomLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         randomWordComboBox = new JComboBox<>(new WordOption[]{
                 new WordOption(5),
@@ -242,7 +242,8 @@ public class SortedListGUI extends JFrame {
     /**
      * Called when the search button is clicked. Attempts to find an exact match using binary
      * search, otherwise defaults to the closest lexographic match using a upper-bound biased
-     * binary search fallback method.
+     * binary search fallback method. Also lists hypothetical insert position of search term
+     * when an exact match isn't found.
      */
     private void performManualSearch() {
         String query = normalizeInput(searchField.getText());
@@ -251,17 +252,26 @@ public class SortedListGUI extends JFrame {
             return;
         }
 
-        int index = sortedList.binarySearch(query);
-        if (index >= 0) {
-            displayArea.setText("(Exact Match)\n" + index + ": " + sortedList.getList().get(index));
+        int exactIndex = sortedList.binarySearch(query);
+
+        if (exactIndex >= 0) {
+            // Exact match found
+            String word = sortedList.getList().get(exactIndex);
+            displayArea.setText("(Exact Match)\n"
+                    + exactIndex + ": " + word);
         } else {
-            // Use smart closestMatch() for better suggestion
+            // No exact match
+            int insertIndex = sortedList.findInsertPosition(query);
             String closest = sortedList.closestMatch(query);
+
             if (closest != null) {
                 int closestIndex = sortedList.getList().indexOf(closest);
-                displayArea.setText("(Closest Match)\n" + closestIndex + ": " + closest);
+                displayArea.setText("(Closest Match)\n"
+                        + "Insert Position: " + insertIndex + "\n"
+                        + closestIndex + ": " + closest);
             } else {
-                displayArea.setText("No match found.");
+                // Very edge case: list empty
+                displayArea.setText("No match found. Would be inserted at index " + insertIndex);
             }
         }
     }
