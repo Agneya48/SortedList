@@ -15,12 +15,8 @@ public class WordSampler {
     }
 
     /**
-     * Returns a list of random words from the previously set word list file.
-     * Uses reservoir sampling to ensure uniform selection with minimal memory usage.
-     *
-     * @param count number of words to select
-     * @return list of random words
-     * @throws IOException if the file cannot be read
+     * Returns a list of random words from  the set file, using resevoir sampling
+     * @throws IOException
      */
     public List<String> getRandomWords(int count) throws Exception {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourceFilePath);
@@ -34,7 +30,7 @@ public class WordSampler {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                //clean up each line of surrounding whitespace and set to lowercase. Every line should be one word
+                //clean up each line of surrounding whitespace and set to lowercase. File format 1 word per line
                 line = line.trim().toLowerCase();
 
                 if(line.isEmpty()) continue; //skip blank lines, so they don't affect the reservoir logic

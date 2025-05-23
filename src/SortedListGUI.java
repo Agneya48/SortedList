@@ -6,21 +6,23 @@ import java.text.Normalizer;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Simple Swing GUI for the sorted list. Lets the user add words to the list for automatic sorting,
+ * where they're displayed in a JTextArea. Words can be typed on at a time, or added randomly in bulk
+ * from a set list up to 500 at a time. Users can also use a search bar to search the list, and
+ * toggle live results that match prefixes as the word is typed.
+ */
 public class SortedListGUI extends JFrame {
     private SortedList sortedList;
     private JTextArea displayArea;
     private JTextField manualWordField;
-    private JButton addManualButton;
     private JComboBox<WordOption> randomWordComboBox;
-    private JButton addRandomButton;
     private JTextField searchField;
-    private JButton searchButton;
     private JCheckBox liveSearchToggle;
-    private JButton clearButton, quitButton;
     private WordSampler sampler;
 
     public SortedListGUI() {
-        super("Sorted Word List Manager");
+        super("Sorted Word List");
 
         //Create Collator for international String comparison
         Collator collator = Collator.getInstance(Locale.JAPANESE); //using some Japanese input for testing
@@ -158,7 +160,7 @@ public class SortedListGUI extends JFrame {
 
         //Panel for padding
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Top, Left, Bottom, Right outer margin
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         centerPanel.add(scrollPane, BorderLayout.CENTER);
 
         // ===== Button Actions ===== //
@@ -241,9 +243,8 @@ public class SortedListGUI extends JFrame {
 
     /**
      * Called when the search button is clicked. Attempts to find an exact match using binary
-     * search, otherwise defaults to the closest lexographic match using a upper-bound biased
-     * binary search fallback method. Also lists hypothetical insert position of search term
-     * when an exact match isn't found.
+     * search, otherwise defaults closest lexographic match using a upper-bound biased
+     * binary search. Also lists would-be insert position of search term when an exact match isn't found.
      */
     private void performManualSearch() {
         String query = normalizeInput(searchField.getText());
@@ -306,47 +307,6 @@ public class SortedListGUI extends JFrame {
         }
     }
 
-    /**
-     * Obsoleted search method, kept for reference and a backup
-     */
-    private void performSearch() {
-        String query = normalizeInput(searchField.getText());
-        if (query.isEmpty()) {
-            updateDisplay();
-            return;
-        }
-
-        if (liveSearchToggle.isSelected()) {
-            // Live Search Mode: show all possible matches
-            List<String> matches = sortedList.prefixMatches(query);
-            if (!matches.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("(Live Matches)\n");
-                for (String match : matches) {
-                    int index = sortedList.getList().indexOf(match);
-                    sb.append(index).append(": ").append(match).append("\n");
-                }
-                displayArea.setText(sb.toString());
-            } else {
-                displayArea.setText("No matches found.");
-            }
-        } else {
-            // Manual Search Button Mode: Exact or Closest Match
-            int index = sortedList.binarySearch(query);
-            if (index >= 0) {
-                displayArea.setText("(Exact Match)\n" + index + ": " + sortedList.getList().get(index));
-            } else {
-                String closest = sortedList.closestMatch(query);
-                if (closest != null) {
-                    int closestIndex = sortedList.getList().indexOf(closest);
-                    displayArea.setText("(Closest Match)\n" + closestIndex + ": " + closest);
-                } else {
-                    displayArea.setText("No match found.");
-                }
-            }
-        }
-    }
-
     private String normalizeInput(String rawInput) {
         if (rawInput == null) return "";
         String cleaned = rawInput.trim();
@@ -392,4 +352,7 @@ public class SortedListGUI extends JFrame {
         }
     }
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new SortedListGUI());
+    }
 }

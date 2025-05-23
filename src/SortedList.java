@@ -3,12 +3,8 @@ import java.util.List;
 import java.text.Collator;
 
 /**
- * A list that automatically sorts itself into ascending lexographic order as entries are added.
- * Uses a collator instance to determine lexographic order, so it still works with minimal
- * input validation. For maximum international compatibility, ICU4J can be used instead
- * with minimal code change, but that is omitted from this version so a 3-5 MB dependency isn't needed.
- * Currently fed a Japanese Locale collator for testing since I have a Japanese IME installed.
- * Still functionally identical to English locale when used pure for English script sorting.
+ * A sorted list implementation with binary search-based insertion, prefix matching,
+ * and locale-aware comparison via Collator.
  */
 public class SortedList {
     private List<String> list;
@@ -25,9 +21,7 @@ public class SortedList {
     }
 
     /**
-     * Uses binary search to efficiently find the pre-sorted insert position for a given word
-     * @param word String to be inserted and sorted
-     * @return int index position where word will be sorted
+     * Uses binary search to find the pre-sorted insert position for a given word
      */
     public int findInsertPosition(String word) {
         int low = 0, high = list.size();
@@ -45,11 +39,17 @@ public class SortedList {
     }
 
     /**
+     * Uses the pre-sorted nature of the list and the existing binary search method to quickly
+     * check if a given item is already in the List. O(log n) complexity
+     */
+    public boolean contains(String word) {
+        return binarySearch(word) >= 0;
+    }
+
+    /**
      * Simple binary search algorithm that attempts to find the given word in the SortedList.
      * Searches for exact matches, and will return -1 if no exact match is found.
-     * This is so the closest match method can be then called as a fallback.
-     * @param word search String to find in SortedList
-     * @return index of exact match if found, otherwise -1
+     * This is so the closestMatch method can be then called as a fallback.
      */
     public int binarySearch(String word) {
         int low = 0;
@@ -81,10 +81,6 @@ public class SortedList {
 
     /**
      * Finds the closest match to the given query word by using a binary search with an Upper Bound bias.
-     * This way, partial prefix matches will default to the higher bound, not the lower, which will
-     * usually be much closer in auto-complete scenarios.
-     * @param word String to find closest match in List
-     * @return String that is the closest match, biased to upper bound
      */
     public String closestMatch(String word) {
         if (list.isEmpty()) return null;
@@ -124,8 +120,6 @@ public class SortedList {
     /**
      * Used for live autocomplete suggestions. Returns entries in the list that
      * match a given prefix.
-     * @param prefix A partially typed word, that will be compared to words in SortedList
-     * @return list of entries that match prefix
      */
     public List<String> prefixMatches(String prefix) {
         List<String> matches = new ArrayList<>();
@@ -147,17 +141,6 @@ public class SortedList {
         });
 
         return matches;
-    }
-
-    /**
-     * Uses the pre-sorted nature of the list and the existing binary search method to quickly
-     * check if a given item is already in the List. Much faster than standard
-     * ArrayList.contains(), with O(log n) complexity vs O(n)
-     * @param word
-     * @return
-     */
-    public boolean contains(String word) {
-        return binarySearch(word) >= 0;
     }
 
     public String get(int index) {
