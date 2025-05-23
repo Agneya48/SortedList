@@ -1,4 +1,4 @@
-# SortedList GUI
+# Sorted List GUI
 
 A Java Swing GUI application for managing a dynamically sorted list of words. This project demonstrates custom list management with binary search logic, prefix-matching search, and user interaction through a simple graphical interface.
 
